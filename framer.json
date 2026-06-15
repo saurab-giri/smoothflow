@@ -1,0 +1,9 @@
+{
+  "id": "13CD25",
+  "name": "SmoothFlow",
+  "modes": [
+    "canvas"
+  ],
+  "icon": "/smoothflow-logo.png",
+  "version": "1.0.0"
+}

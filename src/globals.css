@@ -1,0 +1,338 @@
+/* ─── Reset ─────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ─── Framer plugin dark theme tokens ───────────────────── */
+:root {
+  --bg: #1a1a1a;
+  --surface: #242424;
+  --surface-hover: #2c2c2c;
+  --border: #333;
+  --border-subtle: #2a2a2a;
+  --text: #f0f0f0;
+  --text-dim: #888;
+  --text-faint: #555;
+  --accent: #0099ff;
+  --accent-dim: rgba(0, 153, 255, 0.12);
+  --green: #22c55e;
+  --green-dim: rgba(34, 197, 94, 0.12);
+  --red: #ef4444;
+  --radius: 8px;
+  --radius-sm: 5px;
+  --transition: 160ms ease;
+}
+
+html, body, #root {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Poppins", sans-serif;
+  font-size: 12px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+/* ─── Layout ─────────────────────────────────────────────── */
+.plugin-root {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 14px;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+/* ─── Header ─────────────────────────────────────────────── */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 12px;
+}
+
+.header-icon {
+  width: 32px;
+  height: 32px;
+  background: var(--accent-dim);
+  border-radius: var(--radius-sm);
+  display: grid;
+  place-items: center;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.header-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.header-sub {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 1px;
+}
+
+/* ─── Hero Toggle ────────────────────────────────────────── */
+.hero-toggle {
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 12px;
+  border-radius: var(--radius);
+  margin-bottom: 14px;
+  border: 1px solid var(--border);
+  transition: background var(--transition), border-color var(--transition);
+}
+
+.hero-on {
+  background: var(--green-dim);
+  border-color: rgba(34, 197, 94, 0.25);
+}
+
+.hero-off {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+.hero-toggle-text {
+  display: flex;
+  gap: 2px;
+}
+
+.hero-status {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  padding-right: 20px;
+}
+
+.hero-desc {
+  font-size: 10px;
+  color: var(--text-dim);
+  line-height: 1.4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-btn {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition), transform 80ms;
+  white-space: nowrap;
+  margin-top: 15px;
+}
+
+.hero-btn:active { transform: scale(0.96); }
+
+.btn-on {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--red);
+}
+.btn-on:hover { background: rgba(239, 68, 68, 0.22); }
+
+.btn-off {
+  background: var(--green);
+  color: #000;
+}
+.btn-off:hover { background: #16a34a; }
+
+/* ─── Section label ─────────────────────────────────────── */
+.section-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+  margin-bottom: 8px;
+}
+
+/* ─── Settings panel ─────────────────────────────────────── */
+.settings-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 12px;
+  transition: opacity var(--transition);
+}
+
+.settings-locked {
+  opacity: 0.38;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ─── Setting row ────────────────────────────────────────── */
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  flex-wrap: wrap;
+}
+
+.setting-row.disabled { opacity: 0.5; pointer-events: none; }
+
+.setting-label-row {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  align-items: center;
+}
+
+.setting-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.setting-value {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Slider ─────────────────────────────────────────────── */
+.slider {
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 3px;
+  border-radius: 99px;
+  background: var(--border);
+  cursor: pointer;
+  outline: none;
+  margin-top: 4px;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  box-shadow: 0 0 0 2px rgba(0,153,255,0.2);
+  transition: box-shadow var(--transition);
+}
+
+.slider::-webkit-slider-thumb:hover {
+  box-shadow: 0 0 0 4px rgba(0,153,255,0.25);
+}
+
+.slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: none;
+  cursor: pointer;
+}
+
+/* ─── Select ─────────────────────────────────────────────── */
+.select {
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 11px;
+  padding: 3px 7px;
+  cursor: pointer;
+  outline: none;
+  max-width: 130px;
+}
+
+.select:focus { border-color: var(--accent); }
+
+/* ─── Toggle ─────────────────────────────────────────────── */
+.toggle {
+  width: 32px;
+  height: 18px;
+  border-radius: 99px;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  transition: background var(--transition);
+  padding: 0;
+}
+
+.toggle.on  { background: var(--accent); }
+.toggle.off { background: var(--border); }
+
+.toggle-knob {
+  position: absolute;
+  top: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  transition: left var(--transition);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.35);
+}
+
+.toggle.on  .toggle-knob { left: 16px; }
+.toggle.off .toggle-knob { left: 2px; }
+
+/* ─── Apply button ───────────────────────────────────────── */
+.apply-btn {
+  width: 100%;
+  padding: 9px;
+  border-radius: var(--radius);
+  border: none;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition), opacity var(--transition), transform 80ms;
+  letter-spacing: -0.01em;
+}
+
+.apply-btn:active { transform: scale(0.98); }
+
+.apply-active {
+  background: var(--accent);
+  color: #fff;
+}
+.apply-active:hover { background: #0080dd; }
+
+.apply-saved {
+  background: var(--green) !important;
+  color: #000 !important;
+}
+
+.apply-disabled {
+  background: var(--surface);
+  color: var(--text-faint);
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* ─── Footer ─────────────────────────────────────────────── */
+.footer {
+  margin-top: 10px;
+  font-size: 10px;
+  color: var(--text-faint);
+  text-align: center;
+}
+
+.footer a {
+  color: var(--text-dim);
+  text-decoration: none;
+}
+
+.footer a:hover { color: var(--text); }
