@@ -36,6 +36,20 @@ Then in Framer:
 2. Click **Open Development Plugin**
 3. Enter: `http://localhost:5173`
 
+### Deployment (Vercel)
+
+To deploy to Vercel for hosting the plugin build and to use a publicly accessible URL:
+
+1. Push the repository to GitHub.
+2. Create a new Vercel project and import the GitHub repo.
+3. Use the default build command (npm run build). The Output Directory should be `dist` (configured in vercel.json).
+4. After deployment, use the project URL (https://<your-project>.vercel.app) when opening the development plugin in Framer instead of localhost.
+
+Build command: `npm run build`
+Output directory: `dist`
+
+(vercel.json added to repository to ensure Vercel uses the static-build adapter and serves index.html for SPA routing.)
+
 ---
 
 ## Tech stack
