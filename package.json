@@ -1,9 +1,9 @@
 {
   "name": "SmoothFlow",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
-  "description": "Professional smooth scrolling for Framer sites",
+  "description": "Professional smooth scrolling for Framer sites — paid plugin with Lemon Squeezy licensing",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -21,6 +21,7 @@
   "devDependencies": {
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@vercel/node": "^5",
     "@vitejs/plugin-react": "^6",
     "typescript": "^5.9",
     "vite": "^8.0.16",

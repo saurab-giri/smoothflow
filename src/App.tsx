@@ -1,17 +1,17 @@
 import { useState, useCallback, useEffect } from "react"
 import { framer } from "framer-plugin"
-import { LemonSqueezy } from "@framer/checkout"
-// @ts-ignore: Import minified Lenis source code statically at build time
+// @ts-ignore: Allow side-effect import of CSS without type declarations
 import lenisInline from "../node_modules/@studio-freight/lenis/dist/lenis.min.js?raw"
-// Ignore missing type declarations for these side-effect CSS imports
 // @ts-ignore: Missing type declarations for fontsource CSS
-import "@fontsource/poppins/400.css";
+import "@fontsource/poppins/400.css"
 // @ts-ignore: Missing type declarations for fontsource CSS
-import "@fontsource/poppins/500.css";
+import "@fontsource/poppins/500.css"
 // @ts-ignore: Missing type declarations for fontsource CSS
-import "@fontsource/poppins/600.css";
+import "@fontsource/poppins/600.css"
 // @ts-ignore: Missing type declarations for fontsource CSS
-import "@fontsource/poppins/700.css";
+import "@fontsource/poppins/700.css"
+import { LicenseGate } from "./components/LicenseGate"
+import { clearStoredLicense, validateStoredLicense } from "./utils/license"
 
 // ---------------------------------------------------------------------------
 // Types
@@ -41,7 +41,7 @@ const DEFAULT_SETTINGS: ScrollSettings = {
 // ---------------------------------------------------------------------------
 framer.showUI({
   width: 320,
-  height: 390,
+  height: 420,
   resizable: true,
 })
 
@@ -164,45 +164,42 @@ export function App() {
   const [settings, setSettings] = useState<ScrollSettings>(loadSettings)
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle")
   const [isAllowed, setIsAllowed] = useState(() => framer.isAllowedTo("setCustomCode"))
-  const [licenseKey, setLicenseKey] = useState<string>(() => localStorage.getItem('smoothflowLicense') ?? '')
-  const [licenseValid, setLicenseValid] = useState<boolean>(false)
-  const [checkingLicense, setCheckingLicense] = useState<boolean>(false)
+  const [licenseValid, setLicenseValid] = useState(false)
+  const [licenseChecking, setLicenseChecking] = useState(true)
 
-  // Verify stored license on mount
-  useEffect(() => {
-    if (licenseKey) {
-      verifyKey(licenseKey)
-    }
-  }, [licenseKey])
-
-  const verifyKey = async (key: string) => {
-    setCheckingLicense(true)
+  const refreshLicense = useCallback(async () => {
+    setLicenseChecking(true)
     try {
-      const resp = await fetch('/api/verifyLicense', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key }),
-      })
-      const data = await resp.json()
-      if (data.valid) {
-        setLicenseValid(true)
-        localStorage.setItem('smoothflowLicense', key)
-      } else {
-        setLicenseValid(false)
-        alert('License key is invalid. Please try again.')
-      }
-    } catch (e) {
-      console.error(e)
-      alert('Could not verify license. Please check your internet connection.')
+      const result = await validateStoredLicense()
+      setLicenseValid(result.valid)
+    } catch {
+      setLicenseValid(false)
     } finally {
-      setCheckingLicense(false)
+      setLicenseChecking(false)
     }
-  }
+  }, [])
 
-  const handleLicenseValidated = (key: string) => {
-    setLicenseKey(key)
-    verifyKey(key)
-  }
+  useEffect(() => {
+    refreshLicense()
+  }, [refreshLicense])
+
+  useEffect(() => {
+    if (!licenseValid) {
+      framer.setMenu([])
+      return
+    }
+
+    framer.setMenu([
+      {
+        label: "Deactivate License",
+        onAction: () => {
+          clearStoredLicense()
+          setLicenseValid(false)
+          framer.notify("License deactivated on this device.", { variant: "info" })
+        },
+      },
+    ])
+  }, [licenseValid])
 
   useEffect(() => {
     return framer.subscribeToIsAllowedTo("setCustomCode", (allowed) => {
@@ -245,37 +242,30 @@ export function App() {
 
   const off = !settings.enabled || !isAllowed || !licenseValid
 
+  if (licenseChecking) {
+    return (
+      <div className="plugin-root plugin-loading">
+        <p>Checking license…</p>
+      </div>
+    )
+  }
+
+  if (!licenseValid) {
+    return (
+      <div className="plugin-root plugin-root-gated">
+        <LicenseGate onActivated={() => {
+          setLicenseValid(true)
+          framer.notify("SmoothFlow activated. Enjoy!", { variant: "success" })
+        }} />
+      </div>
+    )
+  }
+
   return (
     <div className="plugin-root">
-      {!licenseValid && (
-        <div className="license-gate">
-          <h2>🔐 Unlock SmoothFlow</h2>
-          <p>This plugin is a paid product. Purchase access below or enter your license key.</p>
-          <LemonSqueezy
-            productUrl="https://checkout.lemonsqueezy.com/your-product-share-link"
-            onSuccess={(data: { licenseKey?: string }) => {
-              // The checkout returns a license key in the data if configured, otherwise ask user.
-              const key = data?.licenseKey || ''
-              if (key) handleLicenseValidated(key)
-            }}
-          />
-          <div className="manual-key">
-            <input
-              type="text"
-              placeholder="Enter license key"
-              value={licenseKey}
-              onChange={(e) => setLicenseKey(e.target.value)}
-            />
-            <button onClick={() => verifyKey(licenseKey)} disabled={checkingLicense}>
-              {checkingLicense ? "Checking…" : "Validate"}
-            </button>
-          </div>
-        </div>
-      )}
-      {/* Header */}
       <div className="header">
         <div className="header-icon">
-          <img src="/smoothflow-logo.png" alt="SmoothFlow Logo" />
+          <img src="/icon.svg" alt="SmoothFlow Logo" />
         </div>
         <div>
           <div className="header-title">SmoothFlow</div>
@@ -283,7 +273,6 @@ export function App() {
         </div>
       </div>
 
-      {/* Permission Warning Banner */}
       {!isAllowed && (
         <div className="permission-warning">
           <span className="warning-icon">⚠️</span>
@@ -291,7 +280,6 @@ export function App() {
         </div>
       )}
 
-      {/* Status Card */}
       <div className={`status-card ${settings.enabled && isAllowed ? "active" : ""}`}>
         <span className="status-label">Smooth Scrolling</span>
         <div className="status-toggle-wrapper">
@@ -310,7 +298,6 @@ export function App() {
         </div>
       </div>
 
-      {/* Settings */}
       <div className="section-label">Settings</div>
       <div className={`settings-panel${off ? " settings-locked" : ""}`}>
         <Slider label="Duration" value={settings.duration} min={0.4} max={4} step={0.1} unit="s"
@@ -343,7 +330,6 @@ export function App() {
           onChange={v => update("infinite", v)} disabled={off} />
       </div>
 
-      {/* Apply */}
       <button
         className={`apply-btn${off ? " apply-disabled" : " apply-active"}${status === "saved" ? " apply-saved" : ""}`}
         onClick={() => applyToSite(settings)}
@@ -353,9 +339,8 @@ export function App() {
       </button>
 
       <div className="footer">
-        @2026 SmoothFlow Plugin. Made with ❤️ for Framer.
+        Licensed · Use the header menu to deactivate on this device.
       </div>
     </div>
   )
 }
-

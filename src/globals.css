@@ -453,3 +453,140 @@ html, body, #root {
   line-height: 1;
 }
 
+/* ─── Loading & license gate ─────────────────────────────── */
+.plugin-loading {
+  display: grid;
+  place-items: center;
+  color: var(--text-dim);
+  font-size: 12px;
+}
+
+.plugin-root-gated {
+  padding: 0;
+  overflow: hidden;
+}
+
+.license-gate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+  padding: 16px;
+  background: var(--bg);
+}
+
+.license-gate-card {
+  width: 100%;
+  max-width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: center;
+}
+
+.license-gate-icon {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.license-gate-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.license-gate-desc {
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+.purchase-btn {
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--accent);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition);
+}
+
+.purchase-btn:hover {
+  background: var(--accent-hover);
+}
+
+.license-gate-hint {
+  font-size: 10px;
+  color: var(--text-faint);
+  line-height: 1.4;
+}
+
+.manual-key {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.manual-key input {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 11px;
+  font-family: inherit;
+  outline: none;
+}
+
+.manual-key input:focus {
+  border-color: var(--accent);
+}
+
+.manual-key button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--surface-hover);
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.manual-key button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.license-gate-error {
+  font-size: 10px;
+  color: var(--red);
+  line-height: 1.4;
+}
+
+.license-gate-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 4px;
+  font-size: 10px;
+  color: var(--text-faint);
+}
+
+.license-gate-footer a {
+  color: var(--text-dim);
+  text-decoration: none;
+}
+
+.license-gate-footer a:hover {
+  color: var(--text);
+}
+

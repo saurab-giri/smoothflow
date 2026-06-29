@@ -1,54 +1,80 @@
-# SmoothFlow - Smooth Scroll Plugin
+# SmoothFlow — Smooth Scroll Plugin (Paid)
 
-> Silky smooth scrolling for your Framer site, powered by [Lenis](https://lenis.darkroom.engineering). Zero setup. One click.
+> Silky smooth scrolling for your Framer site, powered by [Lenis](https://lenis.darkroom.engineering). One-click setup with full control over easing, speed, and direction.
+
+**License:** Paid plugin — one-time purchase via Lemon Squeezy.
 
 ---
 
 ## Features
 
 - One-click enable / disable toggle
-- Duration control (0.4s – 3s)
+- Duration control (0.4s – 4s)
 - 4 easing presets: Expo, Cubic, Quad, Quart
-- Mouse wheel speed multiplier
-- Touch speed multiplier
+- Mouse wheel and touch speed multipliers
 - Scroll direction: Vertical / Horizontal / Both
 - Infinite scroll loop mode
 - Settings persist across plugin sessions
-- Injects/removes Lenis via Framer Custom Code API — no manual code editing
+- Lemon Squeezy checkout + license key activation
+- Deactivate license from the plugin header menu
+
+---
+
+## Before you publish (checklist)
+
+Per [Framer's plugin publishing guide](https://www.framer.com/developers/publishing) and [marketplace best practices](https://www.framer.com/help/articles/plugin-best-practices/):
+
+1. **Lemon Squeezy** — Create a product with **license keys enabled** (one-time, USD).
+2. **Environment** — Copy `.env.example` to `.env` and fill in your checkout URL, product page, and support email.
+3. **License API** — Deploy this repo to Vercel. Set `VITE_LICENSE_API_URL` to `https://your-project.vercel.app/api`.
+4. **Build & test** — Run `npm run build`, test in a fresh Framer project (dark + light mode).
+5. **Pack** — Run `npm run pack` to create `plugin.zip`.
+6. **Marketplace** — In [Framer Community → Marketplace](https://www.framer.com/marketplace/), upload `plugin.zip`, set pricing in USD, and clearly describe the license requirement in your listing.
+
+You keep 100% of plugin revenue. Framer does not provide a native payment gateway — Lemon Squeezy handles checkout and license keys.
 
 ---
 
 ## Development
 
 ### Prerequisites
+
 - Node.js 18+
-- npm / yarn / pnpm
+- npm
+- Lemon Squeezy account (test mode for development)
+- Vercel account (for license API hosting)
 
 ### Install & run
 
 ```bash
 npm install
+cp .env.example .env   # then edit with your URLs
 npm run dev
 ```
 
-Then in Framer:
-1. Open the **Plugins** menu → Settings → enable **Developer Tools**
+In Framer:
+
+1. Open **Plugins** → Settings → enable **Developer Tools**
 2. Click **Open Development Plugin**
-3. Enter: `http://localhost:5173`
+3. Enter: `https://localhost:5173`
 
-### Deployment (Vercel)
+### Deploy license API (Vercel)
 
-To deploy to Vercel for hosting the plugin build and to use a publicly accessible URL:
+```bash
+npm run build
+# Push to GitHub and import in Vercel, or:
+npx vercel --prod
+```
 
-1. Push the repository to GitHub.
-2. Create a new Vercel project and import the GitHub repo.
-3. Use the default build command (npm run build). The Output Directory should be `dist` (configured in vercel.json).
-4. After deployment, use the project URL (https://<your-project>.vercel.app) when opening the development plugin in Framer instead of localhost.
+After deploy, update `VITE_LICENSE_API_URL` in `.env` and rebuild before packing.
 
-Build command: `npm run build`
-Output directory: `dist`
+### Pack for Marketplace
 
-(vercel.json added to repository to ensure Vercel uses the static-build adapter and serves index.html for SPA routing.)
+```bash
+npm run pack
+```
+
+Upload the generated `plugin.zip` in the Framer Marketplace dashboard.
 
 ---
 
@@ -57,12 +83,34 @@ Output directory: `dist`
 | Layer | Technology |
 |-------|-----------|
 | Framework | React 18 + TypeScript |
-| Bundler | Vite + vite-plugin-singlefile |
+| Bundler | Vite + vite-plugin-framer |
 | Plugin API | `framer-plugin` SDK |
-| Scroll engine | Lenis 1.x (CDN) |
+| Payments | Lemon Squeezy (checkout overlay + License API) |
+| License server | Vercel serverless functions (`/api`) |
+| Scroll engine | Lenis (bundled inline) |
 
 ---
 
-## License
+## Project structure
 
-MIT — free to use, modify, and distribute.
+```
+src/
+  App.tsx              — Main plugin UI
+  components/
+    LicenseGate.tsx    — Purchase + license activation screen
+  utils/
+    license.ts         — Client-side license storage & API calls
+  config.ts            — Checkout URL, API URL, pricing display
+api/
+  activateLicense.ts   — Lemon Squeezy activate proxy
+  validateLicense.ts   — Lemon Squeezy validate proxy
+public/
+  icon.svg             — 30×30 marketplace icon
+framer.json            — Plugin metadata (name, icon, version)
+```
+
+---
+
+## Support
+
+Set `VITE_SUPPORT_EMAIL` in `.env` to your support address. Include a test license key when submitting to the marketplace if reviewers need access.
