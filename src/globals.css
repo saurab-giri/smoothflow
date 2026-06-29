@@ -1,24 +1,120 @@
 /* ─── Reset ─────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* ─── Framer plugin dark theme tokens ───────────────────── */
+/* ─── Framer Theme Variables ────────────────────────────── */
 :root {
-  --bg: #1a1a1a;
-  --surface: #242424;
-  --surface-hover: #2c2c2c;
-  --border: #333;
-  --border-subtle: #2a2a2a;
-  --text: #f0f0f0;
-  --text-dim: #888;
-  --text-faint: #555;
-  --accent: #0099ff;
-  --accent-dim: rgba(0, 153, 255, 0.12);
-  --green: #22c55e;
-  --green-dim: rgba(34, 197, 94, 0.12);
-  --red: #ef4444;
   --radius: 8px;
-  --radius-sm: 5px;
-  --transition: 160ms ease;
+  --radius-sm: 6px;
+  --transition: 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Defaults (Dark Mode) */
+  --bg: #131313;
+  --surface: #1c1c1c;
+  --surface-hover: #262626;
+  --border: #2e2e2e;
+  --border-subtle: #222222;
+  --text: #f5f5f5;
+  --text-dim: #949494;
+  --text-faint: #525252;
+  
+  --accent: #0099ff;
+  --accent-dim: rgba(0, 153, 255, 0.15);
+  --accent-hover: #0088e8;
+  
+  --green: #10b981;
+  --green-dim: rgba(16, 185, 129, 0.15);
+  --green-hover: #059669;
+  
+  --red: #ef4444;
+  --red-dim: rgba(239, 68, 68, 0.15);
+  --red-hover: #dc2626;
+  
+  --slider-track: #2e2e2e;
+  --slider-thumb-shadow: rgba(0, 153, 255, 0.25);
+  --slider-thumb-shadow-hover: rgba(0, 153, 255, 0.4);
+}
+
+/* Light mode overrides via media query */
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #ffffff;
+    --surface: #f4f4f5;
+    --surface-hover: #e4e4e7;
+    --border: #e4e4e7;
+    --border-subtle: #f4f4f5;
+    --text: #09090b;
+    --text-dim: #71717a;
+    --text-faint: #a1a1aa;
+    
+    --accent: #0099ff;
+    --accent-dim: rgba(0, 153, 255, 0.08);
+    --accent-hover: #0088e8;
+    
+    --green: #10b981;
+    --green-dim: rgba(16, 185, 129, 0.08);
+    --green-hover: #059669;
+    
+    --red: #ef4444;
+    --red-dim: rgba(239, 68, 68, 0.08);
+    --red-hover: #dc2626;
+    
+    --slider-track: #e4e4e7;
+    --slider-thumb-shadow: rgba(0, 153, 255, 0.15);
+    --slider-thumb-shadow-hover: rgba(0, 153, 255, 0.3);
+  }
+}
+
+/* Framer-specific light/dark attributes (takes precedence) */
+[data-framer-theme="dark"] {
+  --bg: var(--framer-color-bg, #131313);
+  --surface: var(--framer-color-bg-secondary, #1c1c1c);
+  --surface-hover: var(--framer-color-bg-tertiary, #262626);
+  --border: var(--framer-color-divider, #2e2e2e);
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --text: var(--framer-color-text, #f5f5f5);
+  --text-dim: var(--framer-color-text-secondary, #949494);
+  --text-faint: var(--framer-color-text-tertiary, #525252);
+  --accent: var(--framer-color-tint, #0099ff);
+  --accent-dim: var(--framer-color-tint-dimmed, rgba(0, 153, 255, 0.15));
+  --accent-hover: #0088e8;
+  
+  --green: #10b981;
+  --green-dim: rgba(16, 185, 129, 0.15);
+  --green-hover: #059669;
+  
+  --red: #ef4444;
+  --red-dim: rgba(239, 68, 68, 0.15);
+  --red-hover: #dc2626;
+  
+  --slider-track: var(--framer-color-divider, #2e2e2e);
+  --slider-thumb-shadow: rgba(0, 153, 255, 0.25);
+  --slider-thumb-shadow-hover: rgba(0, 153, 255, 0.4);
+}
+
+[data-framer-theme="light"] {
+  --bg: var(--framer-color-bg, #ffffff);
+  --surface: var(--framer-color-bg-secondary, #f4f4f5);
+  --surface-hover: var(--framer-color-bg-tertiary, #e4e4e7);
+  --border: var(--framer-color-divider, #e4e4e7);
+  --border-subtle: rgba(0, 0, 0, 0.04);
+  --text: var(--framer-color-text, #09090b);
+  --text-dim: var(--framer-color-text-secondary, #71717a);
+  --text-faint: var(--framer-color-text-tertiary, #a1a1aa);
+  --accent: var(--framer-color-tint, #0099ff);
+  --accent-dim: var(--framer-color-tint-dimmed, rgba(0, 153, 255, 0.08));
+  --accent-hover: #0088e8;
+  
+  --green: #10b981;
+  --green-dim: rgba(16, 185, 129, 0.08);
+  --green-hover: #059669;
+  
+  --red: #ef4444;
+  --red-dim: rgba(239, 68, 68, 0.08);
+  --red-hover: #dc2626;
+  
+  --slider-track: var(--framer-color-divider, #e4e4e7);
+  --slider-thumb-shadow: rgba(0, 153, 255, 0.15);
+  --slider-thumb-shadow-hover: rgba(0, 153, 255, 0.3);
 }
 
 html, body, #root {
@@ -66,6 +162,12 @@ html, body, #root {
   flex-shrink: 0;
 }
 
+.header-icon img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
 .header-title {
   font-size: 13px;
   font-weight: 600;
@@ -79,73 +181,57 @@ html, body, #root {
   margin-top: 1px;
 }
 
-/* ─── Hero Toggle ────────────────────────────────────────── */
-.hero-toggle {
+/* ─── Status Card ────────────────────────────────────────── */
+.status-card {
+  display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 11px 12px;
+  padding: 10px 12px;
   border-radius: var(--radius);
-  margin-bottom: 14px;
-  border: 1px solid var(--border);
-  transition: background var(--transition), border-color var(--transition);
-}
-
-.hero-on {
-  background: var(--green-dim);
-  border-color: rgba(34, 197, 94, 0.25);
-}
-
-.hero-off {
   background: var(--surface);
-  border-color: var(--border);
+  border: 1px solid var(--border);
+  margin-bottom: 12px;
+  transition: border-color var(--transition), background var(--transition);
 }
 
-.hero-toggle-text {
-  display: flex;
-  gap: 2px;
+.status-card.active {
+  border-color: var(--green);
+  background: var(--green-dim);
 }
 
-.hero-status {
-  font-size: 12px;
-  font-weight: 600;
+.status-label {
+  font-size: 11px;
+  font-weight: 500;
   color: var(--text);
-  padding-right: 20px;
 }
 
-.hero-desc {
-  font-size: 10px;
-  color: var(--text-dim);
-  line-height: 1.4;
+.status-toggle-wrapper {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 8px;
 }
 
-.hero-btn {
-  font-size: 11px;
+.status-badge {
+  font-size: 9px;
   font-weight: 600;
-  padding: 6px 12px;
-  border-radius: var(--radius-sm);
-  border: none;
-  cursor: pointer;
-  transition: background var(--transition), color var(--transition), transform 80ms;
-  white-space: nowrap;
-  margin-top: 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  user-select: none;
 }
 
-.hero-btn:active { transform: scale(0.96); }
-
-.btn-on {
-  background: rgba(239, 68, 68, 0.15);
-  color: var(--red);
+.status-active {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--green);
 }
-.btn-on:hover { background: rgba(239, 68, 68, 0.22); }
 
-.btn-off {
-  background: var(--green);
-  color: #000;
+.status-inactive {
+  background: var(--border-subtle);
+  color: var(--text-dim);
+  border: 1px solid var(--border);
 }
-.btn-off:hover { background: #16a34a; }
+
 
 /* ─── Section label ─────────────────────────────────────── */
 .section-label {
@@ -214,7 +300,7 @@ html, body, #root {
   appearance: none;
   height: 3px;
   border-radius: 99px;
-  background: var(--border);
+  background: var(--slider-track);
   cursor: pointer;
   outline: none;
   margin-top: 4px;
@@ -227,12 +313,12 @@ html, body, #root {
   border-radius: 50%;
   background: var(--accent);
   cursor: pointer;
-  box-shadow: 0 0 0 2px rgba(0,153,255,0.2);
+  box-shadow: 0 0 0 2px var(--slider-thumb-shadow);
   transition: box-shadow var(--transition);
 }
 
 .slider::-webkit-slider-thumb:hover {
-  box-shadow: 0 0 0 4px rgba(0,153,255,0.25);
+  box-shadow: 0 0 0 4px var(--slider-thumb-shadow-hover);
 }
 
 .slider::-moz-range-thumb {
@@ -244,20 +330,29 @@ html, body, #root {
   cursor: pointer;
 }
 
+
 /* ─── Select ─────────────────────────────────────────────── */
 .select {
-  background: var(--surface-hover);
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-color: var(--surface-hover);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   color: var(--text);
   font-size: 11px;
-  padding: 3px 7px;
+  padding: 3px 22px 3px 8px;
   cursor: pointer;
   outline: none;
   max-width: 130px;
 }
 
+.select::-ms-expand {
+  display: none;
+}
+
 .select:focus { border-color: var(--accent); }
+
 
 /* ─── Toggle ─────────────────────────────────────────────── */
 .toggle {
@@ -336,3 +431,25 @@ html, body, #root {
 }
 
 .footer a:hover { color: var(--text); }
+
+/* ─── Permission Warning ─────────────────────────────────── */
+.permission-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: var(--red-dim);
+  border: 1px solid var(--red);
+  color: var(--text);
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  margin-bottom: 12px;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.warning-icon {
+  font-size: 13px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+

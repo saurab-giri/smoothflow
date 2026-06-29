@@ -1,5 +1,8 @@
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
 import { framer } from "framer-plugin"
+import { LemonSqueezy } from "@framer/checkout"
+// @ts-ignore: Import minified Lenis source code statically at build time
+import lenisInline from "../node_modules/@studio-freight/lenis/dist/lenis.min.js?raw"
 // Ignore missing type declarations for these side-effect CSS imports
 // @ts-ignore: Missing type declarations for fontsource CSS
 import "@fontsource/poppins/400.css";
@@ -53,19 +56,6 @@ function buildLenisScript(s: ScrollSettings): string {
     quart: `t => t < 0.5 ? 8*t*t*t*t : 1 - Math.pow(-2*t+2, 4)/2`,
   }
 
-  let lenisInline: string | null = null
-  try {
-    // Try to read the local lenis bundle from node_modules so we don't rely on CDN.
-    // @ts-ignore
-    const req = typeof require === "function" ? require : (globalThis as any).require
-    const fs = req('fs')
-    const lenisPath = req.resolve('@studio-freight/lenis/dist/lenis.min.js')
-    lenisInline = fs.readFileSync(lenisPath, 'utf8')
-  } catch (err) {
-    // If reading fails (dev environment without node access), fall back to CDN at runtime.
-    lenisInline = null
-  }
-
   const initScript = `(function () {
     if (typeof Lenis === 'undefined') return;
     var lenis = new Lenis({
@@ -83,11 +73,7 @@ function buildLenisScript(s: ScrollSettings): string {
     window.__lenisInstance = lenis;
   })();`
 
-  if (lenisInline) {
-    return `<!-- SmoothFlow -->\n<script>${lenisInline}</script>\n<script>${initScript}</script>\n<!-- /Smooth Scroll Plugin -->`
-  } else {
-    return `<!-- SmoothFlow -->\n<script src="https://unpkg.com/@studio-freight/lenis@latest/dist/lenis.min.js"></script>\n<script>${initScript}</script>\n<!-- /Smooth Scroll Plugin -->`
-  }
+  return `<!-- SmoothFlow -->\n<script>${lenisInline}</script>\n<script>${initScript}</script>\n<!-- /Smooth Scroll Plugin -->`
 }
 
 // ---------------------------------------------------------------------------
@@ -177,12 +163,63 @@ function ToggleRow({
 export function App() {
   const [settings, setSettings] = useState<ScrollSettings>(loadSettings)
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle")
+  const [isAllowed, setIsAllowed] = useState(() => framer.isAllowedTo("setCustomCode"))
+  const [licenseKey, setLicenseKey] = useState<string>(() => localStorage.getItem('smoothflowLicense') ?? '')
+  const [licenseValid, setLicenseValid] = useState<boolean>(false)
+  const [checkingLicense, setCheckingLicense] = useState<boolean>(false)
+
+  // Verify stored license on mount
+  useEffect(() => {
+    if (licenseKey) {
+      verifyKey(licenseKey)
+    }
+  }, [licenseKey])
+
+  const verifyKey = async (key: string) => {
+    setCheckingLicense(true)
+    try {
+      const resp = await fetch('/api/verifyLicense', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key }),
+      })
+      const data = await resp.json()
+      if (data.valid) {
+        setLicenseValid(true)
+        localStorage.setItem('smoothflowLicense', key)
+      } else {
+        setLicenseValid(false)
+        alert('License key is invalid. Please try again.')
+      }
+    } catch (e) {
+      console.error(e)
+      alert('Could not verify license. Please check your internet connection.')
+    } finally {
+      setCheckingLicense(false)
+    }
+  }
+
+  const handleLicenseValidated = (key: string) => {
+    setLicenseKey(key)
+    verifyKey(key)
+  }
+
+  useEffect(() => {
+    return framer.subscribeToIsAllowedTo("setCustomCode", (allowed) => {
+      setIsAllowed(allowed)
+    })
+  }, [])
 
   const update = useCallback(<K extends keyof ScrollSettings>(key: K, val: ScrollSettings[K]) => {
     setSettings(prev => ({ ...prev, [key]: val }))
   }, [])
 
   const applyToSite = useCallback(async (s: ScrollSettings) => {
+    if (!framer.isAllowedTo("setCustomCode")) {
+      framer.notify("Permission denied: You do not have permission to set custom code.", { variant: "error" })
+      return
+    }
+
     setStatus("saving")
     try {
       await framer.setCustomCode({
@@ -195,6 +232,7 @@ export function App() {
     } catch (err) {
       console.error("SmoothFlow Plugin:", err)
       setStatus("error")
+      framer.notify("Failed to apply smooth scrolling custom code. Please try again.", { variant: "error" })
       setTimeout(() => setStatus("idle"), 3000)
     }
   }, [])
@@ -205,10 +243,35 @@ export function App() {
     applyToSite(next)
   }, [settings, applyToSite])
 
-  const off = !settings.enabled
+  const off = !settings.enabled || !isAllowed || !licenseValid
 
   return (
     <div className="plugin-root">
+      {!licenseValid && (
+        <div className="license-gate">
+          <h2>🔐 Unlock SmoothFlow</h2>
+          <p>This plugin is a paid product. Purchase access below or enter your license key.</p>
+          <LemonSqueezy
+            productUrl="https://checkout.lemonsqueezy.com/your-product-share-link"
+            onSuccess={(data: { licenseKey?: string }) => {
+              // The checkout returns a license key in the data if configured, otherwise ask user.
+              const key = data?.licenseKey || ''
+              if (key) handleLicenseValidated(key)
+            }}
+          />
+          <div className="manual-key">
+            <input
+              type="text"
+              placeholder="Enter license key"
+              value={licenseKey}
+              onChange={(e) => setLicenseKey(e.target.value)}
+            />
+            <button onClick={() => verifyKey(licenseKey)} disabled={checkingLicense}>
+              {checkingLicense ? "Checking…" : "Validate"}
+            </button>
+          </div>
+        </div>
+      )}
       {/* Header */}
       <div className="header">
         <div className="header-icon">
@@ -216,25 +279,35 @@ export function App() {
         </div>
         <div>
           <div className="header-title">SmoothFlow</div>
-          <div className="header-sub">Professional smooth scrolling for Framer sites</div>
+          <div className="header-sub">Professional smooth scrolling</div>
         </div>
       </div>
 
-      {/* Hero toggle */}
-      <div className={`hero-toggle ${settings.enabled ? "hero-on" : "hero-off"}`}>
-        <div className="hero-toggle-text">
-          <span className="hero-status">{settings.enabled ? "Enabled" : "Disabled"}</span>
-          <span className="hero-desc">
-            {settings.enabled ? "Smooth scroll is live on your site" : "Click to activate smooth scrolling"}
-          </span>
+      {/* Permission Warning Banner */}
+      {!isAllowed && (
+        <div className="permission-warning">
+          <span className="warning-icon">⚠️</span>
+          <span>Custom code permission is required. Please check your project settings.</span>
         </div>
-        <button
-          className={`hero-btn ${settings.enabled ? "btn-on" : "btn-off"}`}
-          onClick={() => handleToggleEnabled(!settings.enabled)}
-          disabled={status === "saving"}
-        >
-          {status === "saving" ? "…" : settings.enabled ? "Turn Off" : "Turn On"}
-        </button>
+      )}
+
+      {/* Status Card */}
+      <div className={`status-card ${settings.enabled && isAllowed ? "active" : ""}`}>
+        <span className="status-label">Smooth Scrolling</span>
+        <div className="status-toggle-wrapper">
+          <span className={`status-badge ${settings.enabled && isAllowed ? "status-active" : "status-inactive"}`}>
+            {settings.enabled && isAllowed ? "Active" : "Inactive"}
+          </span>
+          <button
+            role="switch"
+            aria-checked={settings.enabled && isAllowed}
+            disabled={status === "saving" || !isAllowed}
+            onClick={() => handleToggleEnabled(!settings.enabled)}
+            className={`toggle ${settings.enabled && isAllowed ? "on" : "off"}`}
+          >
+            <span className="toggle-knob" />
+          </button>
+        </div>
       </div>
 
       {/* Settings */}
@@ -276,12 +349,13 @@ export function App() {
         onClick={() => applyToSite(settings)}
         disabled={off || status === "saving"}
       >
-        {status === "saving" ? "Applying…" : status === "saved" ? "✓ Applied" : status === "error" ? "Error — retry" : "Apply Settings"}
+        {status === "saving" ? "Applying…" : status === "saved" ? "✅ Applied" : status === "error" ? "Error — retry" : "Apply Settings"}
       </button>
 
       <div className="footer">
-        @ 2026 SmoothFlow — built with Lenis by Studio Freight
+        @2026 SmoothFlow Plugin. Made with ❤️ for Framer.
       </div>
     </div>
   )
 }
+

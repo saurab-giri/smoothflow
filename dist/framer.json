@@ -4,6 +4,6 @@
   "modes": [
     "canvas"
   ],
-  "icon": "/smoothflow-logo.png",
-  "version": "1.0.0"
+  "icon": "smoothflow-logo.png",
+  "version": "1.0.1"
 }
